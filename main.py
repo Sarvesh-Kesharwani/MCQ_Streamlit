@@ -81,22 +81,34 @@ def main():
                 "Select an option:", options, key=f"q{st.session_state.question_index}"
             )
 
-            if st.button("Submit", key=f"submit{st.session_state.question_index}"):
-                if (
-                    correct_answer in ["A", "B", "C", "D"]
-                    and user_answer == options[ord(correct_answer) - ord("A")]
+            col1, col2 = st.columns(2)
+
+            with col1:
+                if st.button("Submit", key=f"submit{st.session_state.question_index}"):
+                    if (
+                        correct_answer in ["A", "B", "C", "D"]
+                        and user_answer == options[ord(correct_answer) - ord("A")]
+                    ):
+                        st.success("Correct!")
+                        st.session_state.score += 1
+                    else:
+                        st.error(
+                            f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
+                        )
+
+                    st.session_state.question_index += 1
+
+                    if st.session_state.question_index >= len(df):
+                        st.session_state.finished = True
+
+            with col2:
+                if st.button(
+                    "Next Question", key=f"next{st.session_state.question_index}"
                 ):
-                    st.success("Correct!")
-                    st.session_state.score += 1
-                else:
-                    st.error(
-                        f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
-                    )
+                    st.session_state.question_index += 1
 
-                st.session_state.question_index += 1
-
-                if st.session_state.question_index >= len(df):
-                    st.session_state.finished = True
+                    if st.session_state.question_index >= len(df):
+                        st.session_state.finished = True
 
         if st.session_state.finished:
             st.success(
