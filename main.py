@@ -1,15 +1,35 @@
 import streamlit as st
 import pandas as pd
-import io
+import json
 
 
-# Load questions from pasted text
-def load_questions_from_text(text):
+# Load questions from pasted JSON
+def load_questions_from_json(text):
     try:
-        df = pd.read_csv(io.StringIO(text))
-        return df
+        data = json.loads(text)
+        if "mcqs" not in data:
+            st.error("JSON must contain a 'mcqs' key.")
+            return None
+
+        # Convert JSON to DataFrame
+        questions = []
+        for mcq in data["mcqs"]:
+            question = mcq.get("question", "")
+            options = mcq.get("options", {})
+            answer = mcq.get("answer", "")
+            questions.append(
+                {
+                    "Question": question,
+                    "Option A": options.get("A", ""),
+                    "Option B": options.get("B", ""),
+                    "Option C": options.get("C", ""),
+                    "Option D": options.get("D", ""),
+                    "Answer": answer,
+                }
+            )
+        return pd.DataFrame(questions)
     except Exception as e:
-        st.error(f"Error parsing text: {e}")
+        st.error(f"Error parsing JSON: {e}")
         return None
 
 
@@ -19,10 +39,10 @@ def main():
     st.write("Test your knowledge with multiple-choice questions!")
 
     # Text input for questions
-    user_text = st.text_area("Paste your questions in CSV format:")
+    user_text = st.text_area("Paste your questions in JSON format:")
 
     if user_text:
-        df = load_questions_from_text(user_text)
+        df = load_questions_from_json(user_text)
         if df is None:
             return
 
@@ -36,7 +56,7 @@ def main():
         ]
         if not all(col in df.columns for col in required_columns):
             st.error(
-                f"CSV text must contain the following columns: {', '.join(required_columns)}"
+                f"JSON must contain the following fields: {', '.join(required_columns)}"
             )
             return
 
