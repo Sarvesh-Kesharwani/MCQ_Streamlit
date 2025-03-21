@@ -54,7 +54,7 @@ def main():
                 row["Option C"],
                 row["Option D"],
             ]
-            correct_answer = row["Answer"]
+            correct_answer = str(row["Answer"]).strip().upper()
 
             st.subheader(f"Q{st.session_state.question_index + 1}: {question}")
             user_answer = st.radio(
@@ -62,7 +62,10 @@ def main():
             )
 
             if st.button("Submit", key=f"submit{st.session_state.question_index}"):
-                if user_answer == options[ord(correct_answer) - ord("A")]:
+                if (
+                    correct_answer in ["A", "B", "C", "D"]
+                    and user_answer == options[ord(correct_answer) - ord("A")]
+                ):
                     st.success("Correct!")
                     st.session_state.score += 1
                 else:
