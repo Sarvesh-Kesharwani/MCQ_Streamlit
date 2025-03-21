@@ -64,6 +64,7 @@ def main():
             st.session_state.question_index = 0
             st.session_state.score = 0
             st.session_state.finished = False
+            st.session_state.submitted = False
 
         if st.session_state.question_index < len(df):
             row = df.iloc[st.session_state.question_index]
@@ -85,27 +86,26 @@ def main():
 
             with col1:
                 if st.button("Submit", key=f"submit{st.session_state.question_index}"):
-                    if (
-                        correct_answer in ["A", "B", "C", "D"]
-                        and user_answer == options[ord(correct_answer) - ord("A")]
-                    ):
-                        st.success("Correct!")
-                        st.session_state.score += 1
-                    else:
-                        st.error(
-                            f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
-                        )
-
-                    st.session_state.question_index += 1
-
-                    if st.session_state.question_index >= len(df):
-                        st.session_state.finished = True
+                    if not st.session_state.submitted:
+                        st.session_state.submitted = True
+                        if (
+                            correct_answer in ["A", "B", "C", "D"]
+                            and user_answer == options[ord(correct_answer) - ord("A")]
+                        ):
+                            st.success("Correct!")
+                            st.session_state.score += 1
+                        else:
+                            st.error(
+                                f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
+                            )
 
             with col2:
                 if st.button(
                     "Next Question", key=f"next{st.session_state.question_index}"
                 ):
-                    st.session_state.question_index += 1
+                    if st.session_state.submitted:
+                        st.session_state.question_index += 1
+                        st.session_state.submitted = False
 
                     if st.session_state.question_index >= len(df):
                         st.session_state.finished = True
@@ -118,6 +118,7 @@ def main():
                 st.session_state.question_index = 0  # Reset index
                 st.session_state.score = 0
                 st.session_state.finished = False
+                st.session_state.submitted = False
 
 
 if __name__ == "__main__":
