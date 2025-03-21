@@ -46,6 +46,8 @@ def main():
         if df is None:
             return
 
+        st.write(f"Total Questions: {len(df)}")  # Show total number of questions
+
         required_columns = [
             "Question",
             "Option A",
@@ -82,33 +84,37 @@ def main():
                 "Select an option:", options, key=f"q{st.session_state.question_index}"
             )
 
-            col1, col2 = st.columns(2)
+            col1, col2, col3 = st.columns(3)
 
             with col1:
                 if st.button("Submit", key=f"submit{st.session_state.question_index}"):
-                    if not st.session_state.submitted:
-                        st.session_state.submitted = True
-                        if (
-                            correct_answer in ["A", "B", "C", "D"]
-                            and user_answer == options[ord(correct_answer) - ord("A")]
-                        ):
-                            st.success("Correct!")
-                            st.session_state.score += 1
-                        else:
-                            st.error(
-                                f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
-                            )
+                    st.session_state.submitted = True
+                    if (
+                        correct_answer in ["A", "B", "C", "D"]
+                        and user_answer == options[ord(correct_answer) - ord("A")]
+                    ):
+                        st.success("Correct!")
+                        st.session_state.score += 1
+                    else:
+                        st.error(
+                            f"Wrong! Correct answer: {options[ord(correct_answer) - ord('A')]}"
+                        )
 
             with col2:
                 if st.button(
                     "Next Question", key=f"next{st.session_state.question_index}"
                 ):
-                    if st.session_state.submitted:
+                    if st.session_state.question_index < len(df) - 1:
                         st.session_state.question_index += 1
                         st.session_state.submitted = False
 
-                    if st.session_state.question_index >= len(df):
-                        st.session_state.finished = True
+            with col3:
+                if st.button(
+                    "Previous Question", key=f"prev{st.session_state.question_index}"
+                ):
+                    if st.session_state.question_index > 0:
+                        st.session_state.question_index -= 1
+                        st.session_state.submitted = False
 
         if st.session_state.finished:
             st.success(
